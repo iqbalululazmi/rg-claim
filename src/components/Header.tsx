@@ -1,17 +1,30 @@
 /* This example requires Tailwind CSS v2.0+ */
+import { Button } from '@components/Button'
 import { HeaderConstant } from '@constants/header.constant'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
-import Link from 'next/link'
-import { Fragment } from 'react'
-import { useRouter } from 'next/router'
 import Image from 'next/image'
-
-const navigations = HeaderConstant.navigations
-const mobileNavigations = HeaderConstant.mobileNavigations
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { Fragment, useEffect, useState } from 'react'
 
 export const Header = () => {
+  let navigations = HeaderConstant.navigations
+  const mobileNavigations = HeaderConstant.mobileNavigations
   const router = useRouter()
+  const [profile, setProfile] = useState<any>({})
+
+  useEffect(() => {
+    const user = localStorage.getItem('user')
+    // setProfile(JSON.parse(res))
+    console.log(user)
+    if (user === null) {
+      navigations = navigations.slice(0, 1)
+    } else {
+      setProfile(JSON.parse(user))
+    }
+    console.log(profile)
+  }, [])
 
   return (
     <div>
@@ -20,28 +33,46 @@ export const Header = () => {
           <>
             <div className="max-w-full mx-auto px-4 sm:px-10 sm:pt-4 mb-3">
               <div className="flex items-center py-3 md:justify-start md:space-x-10">
-                <div className="flex justify-start">
-                  <a href="#" className="text-primary bold font-semibold text-xl">
-                    <Image
-                      src="/images/logo-rg.svg"
-                      width="40"
-                      height="40"
-                      alt="Picture of the author"
-                    />
-                  </a>
-                </div>
-                <div className="hidden md:flex items-center justify-start md:flex-1 lg:w-0">
+                <div className="flex space-x-4 justify-start items-center lg:w-0 lg:flex-1">
+                  <div className="flex justify-start">
+                    <a href="#" className="text-primary bold font-semibold text-xl">
+                      <Image
+                        src="/images/logo-rg.svg"
+                        width="40"
+                        height="40"
+                        alt="Picture of the author"
+                      />
+                    </a>
+                  </div>
+                  <div className="hidden md:flex items-center justify-start md:flex-1 lg:w-0"></div>
                   {navigations.map((item) => (
                     <Link key={item.name} href={item.href}>
                       <a
                         className={`${
                           router.pathname === item.href ? 'text-primary' : ''
-                        } mr-4 whitespace-nowrap text-base font-medium text-gray-500 hover:text-primary`}
+                        } mr-4 whitespace-nowrap text-lg font-medium text-gray-500 hover:text-primary`}
                       >
                         {item.name}
                       </a>
                     </Link>
                   ))}
+                </div>
+                <div className="flex justify-end">
+                  {Object.keys(profile).length === 0 ? (
+                    <Button className="rounded-xl h-12 border p-4 bg-orange-400 text-white-pure flex flex-col justify-center text-center ">
+                      Langganan Sekarang
+                    </Button>
+                  ) : (
+                    <Link href="/account">
+                      <a
+                        className={`${
+                          router.pathname === '/account' ? 'text-primary' : ''
+                        } mr-4 whitespace-nowrap text-lg font-medium text-gray-500 hover:text-primary`}
+                      >
+                        <div>{profile.username}</div>
+                      </a>
+                    </Link>
+                  )}
                 </div>
                 <div className="-mr-2 -my-2 md:hidden">
                   <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
