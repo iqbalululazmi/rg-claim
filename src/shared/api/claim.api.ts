@@ -1,7 +1,7 @@
 const path = process.env.NEXT_PUBLIC_HOST || ''
 
 const createClaim = async (payload: any) => {
-  const res = await fetch(path + '/api/v1/subscription', {
+  const res = await fetch(path + '/api/v1/claim', {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -12,7 +12,17 @@ const createClaim = async (payload: any) => {
 }
 
 const getAllClaim = async () => {
-  const res = await fetch(path + '/api/v1/subscription', {
+  const res = await fetch(path + '/api/v1/claim', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'GET',
+  })
+  return await res.json()
+}
+
+const getByUserId = async (userId: string) => {
+  const res = await fetch(path + '/api/v1/claim/' + userId, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -34,4 +44,4 @@ const updateClaimStatus = async (userId: string, status: string) => {
   return await res.json()
 }
 
-export const ClaimApi = { createClaim, getAllClaim, updateClaimStatus }
+export const ClaimApi = { createClaim, getAllClaim, updateClaimStatus, getByUserId }
