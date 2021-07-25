@@ -69,7 +69,7 @@ export default function Blog() {
           <div className="w-full">
             <div className="flex flex-row flex-wrap h-full px-20 pt-5">
               {avaiblableProductPrize.map((item: AvailableProductPrizeDTO) => (
-                <BlogListItem key={item.productTag} {...item} />
+                <ProductItem key={item.productTag} {...item} />
               ))}
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function Blog() {
   )
 }
 
-function BlogListItem({ productName, eligibleUserPrize, image }: AvailableProductPrizeDTO) {
+function ProductItem({ productName, eligibleUserPrize, image }: AvailableProductPrizeDTO) {
   return (
     <div className="flex-3 p-3 rounded-2xl">
       <div className="bg-white-pure shadow-md h-400 rounded-2xl hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-99 hover:shad">

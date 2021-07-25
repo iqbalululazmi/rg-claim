@@ -1,17 +1,53 @@
 import { Input } from '@components/Input'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
 import { Layout } from '../components/Layout'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { UserApi } from 'src/shared/api/user.api'
 
 export default function KlaimPromo() {
   const router = useRouter()
+  const [packages, setPackages] = useState<any>([])
+  const [user, setUser] = useState<any>([])
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken')
     if (accessToken === null) {
       router.push('/login')
+    } else {
+      getUserPackages()
     }
-  })
+  }, [])
+
+  const getUserPackages = async () => {
+    const profile = JSON.parse(localStorage.getItem('user') || '')
+    const userPackages = await UserApi.userPackages(profile.username)
+    userPackages.packages.forEach((item: any) => {
+      switch (item.packageTag) {
+        case 'ruangguru':
+          item.prize = 'Pencils'
+          break
+        case 'skillacademy':
+          item.prize = 'Tas'
+          break
+        case 'englishacademy':
+          item.prize = 'Sepatu'
+          break
+      }
+
+      switch (item.orderStatus) {
+        case 'SUCCEED':
+          item.disabledCheckbox = false
+          break
+        default:
+          item.disabledCheckbox = true
+          break
+      }
+
+      item.checkedValue = false
+    })
+    setPackages(userPackages.packages)
+    setUser(userPackages.user)
+  }
 
   return (
     <Layout>
@@ -19,28 +55,24 @@ export default function KlaimPromo() {
         <div className="text-center pt-10 pb-5">
           <h1 className=" text-3xl font-bold">Klaim hadiahmu sekarang juga!</h1>
         </div>
-        <div className="px-20">{formSubmission()}</div>
+        <div className="px-20">{formSubmission(packages, user)}</div>
       </section>
     </Layout>
   )
 }
 
-const formSubmission = () => {
-  const registerUser = async (event: any) => {
-    event.preventDefault()
+const formSubmission = (packages: any[], user: any) => {
+  const [packageInfo, setPackageInfo] = useState<any>([])
 
-    const res = await fetch('/api/register', {
-      body: JSON.stringify({
-        name: event.target.name.value,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-    })
+  const registerUser = async (e: any) => {
+    e.preventDefault()
 
-    const result = await res.json()
-    console.log(result)
+    const payload = {
+      userId: user.userId,
+      city: e.target.postal_code.value,
+      packages: packageInfo,
+    }
+    console.log(payload)
   }
 
   return (
@@ -51,13 +83,61 @@ const formSubmission = () => {
             <div className="grid grid-cols-6 gap-6">
               <div className="col-span-6 sm:col-span-3">
                 <label className="block text-sm font-medium text-gray-700">Nama Penerima</label>
-                <Input type="text" name="username" id="username" />
+                <Input value={user.userName} type="text" name="username" id="username" />
               </div>
 
               <div className="col-span-6 sm:col-span-3">
                 <label className="block text-sm font-medium text-gray-700">No Handphone</label>
-                <Input type="tel" name="phone" id="phone" autoComplete="phone" />
+                <Input
+                  value={user.userPhoneNumber}
+                  type="tel"
+                  name="phone"
+                  id="phone"
+                  autoComplete="phone"
+                />
               </div>
+
+              <fieldset className=" col-span-6 border border-solid border-gray-200 rounded-md p-6">
+                <legend className="text-sm text-primary font-bold">Pilih Hadiah</legend>
+                {packages.map((item) => (
+                  <div key={item.packageTag} className="grid grid-cols-6 gap-6">
+                    <div className="col-span-6">
+                      <label className="inline-flex items-center mt-3">
+                        <input
+                          type="checkbox"
+                          id={item.packageTag}
+                          name={item.packageTag}
+                          className="form-checkbox h-5 w-5 text-red-600"
+                          disabled={item.disabledCheckbox}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setPackageInfo([
+                                ...packageInfo,
+                                {
+                                  packageTag: item.packageTag,
+                                  packageName: item.packageName,
+                                  packageSerial: item.packageSerial,
+                                  orderStatus: item.orderStatus,
+                                },
+                              ])
+                            } else {
+                              // remove from list
+                              setPackageInfo(
+                                packageInfo.filter(
+                                  (pack: any) => pack.packageTag !== item.packageTag
+                                )
+                              )
+                            }
+                          }}
+                        />
+                        <span className="ml-2 text-gray-700">
+                          {item.prize} - {item.packageName}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </fieldset>
 
               <fieldset className=" col-span-6 border border-solid border-gray-200 rounded-md p-6">
                 <legend className="text-sm text-primary font-bold">Alamat Pengiriman</legend>
