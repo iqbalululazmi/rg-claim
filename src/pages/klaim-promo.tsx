@@ -31,12 +31,14 @@ export default function KlaimPromo() {
             const res: any = await ClaimApi.getByUserId(profile.username)
             const result = res.data === null ? {} : res.data
             setClaimData(result)
-            if (Object.keys(claimData).length > 0) {
+            if (Object.keys(claimData).length === 0) {
               await getUserPackages()
             }
           }
           fetchData()
         }
+        console.log('claim', claimData)
+        console.log('package', packages)
       }
     }
   }, [Object.keys(profile).length === 0, Object.keys(claimData).length === 0])
@@ -108,31 +110,44 @@ export default function KlaimPromo() {
     )
   }
 
-  if (Object.keys(profile).length > 0 && Object.keys(claimData).length === 0) {
+  if (packages.length === 0 && Object.keys(claimData).length === 0) {
     return (
       <Layout>
-        {!claimData.userId && (
-          <div className="flex flex-col justify-center text-center pt-10 pb-5">
-            <h1 className="text-xl font-bold">
-              Maaf kamu belum memiliki hadiah sekarang, klik langganan untuk berlangganan
-            </h1>
-            <div className="text-center flex flex-row justify-center mt-6">
-              <button
-                onClick={(e) => goToSubscription()}
-                type="submit"
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white-pure bg-orange-400 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
-              >
-                Langganan Sekarang
-                <ChevronRightIcon className="h-6 w-6" aria-hidden="true" />
-              </button>
-            </div>
+        <div className="flex flex-col justify-center text-center pt-10 pb-5">
+          <h1 className="text-xl font-bold">
+            Maaf kamu belum memiliki hadiah sekarang, klik langganan untuk berlangganan
+          </h1>
+          <div className="text-center flex flex-row justify-center mt-6">
+            <button
+              onClick={(e) => goToSubscription()}
+              type="submit"
+              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white-pure bg-orange-400 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+            >
+              Langganan Sekarang
+              <ChevronRightIcon className="h-6 w-6" aria-hidden="true" />
+            </button>
           </div>
-        )}{' '}
+        </div>
       </Layout>
     )
   }
 
-  if (packages.length > 0) {
+  if (
+    (Object.keys(claimData).length > 0 && packages.length > 0) ||
+    (Object.keys(claimData).length > 0 && packages.length === 0)
+  ) {
+    return (
+      <Layout>
+        <div className="flex flex-col justify-center text-center pt-10 pb-5">
+          <h1 className="text-xl font-bold">
+            Mohon menunggu, hadiah anda sedang kami proses ya 😇
+          </h1>
+        </div>
+      </Layout>
+    )
+  }
+
+  if (packages.length > 0 && Object.keys(claimData).length === 0) {
     return (
       <Layout>
         <section>
@@ -141,7 +156,7 @@ export default function KlaimPromo() {
           </div>
           <div className="px-20">
             <div className="px-20">
-              <form onSubmit={(e) => registerUser}>
+              <form onSubmit={(e) => registerUser(e)}>
                 <div className="shadow overflow-hidden sm:rounded-md">
                   <div className="px-4 py-5 bg-white sm:p-6">
                     <div className="grid grid-cols-6 gap-6">
