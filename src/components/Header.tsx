@@ -69,9 +69,13 @@ export const Header = () => {
                 </div>
                 <div className="flex justify-end">
                   {Object.keys(profile).length === 0 ? (
-                    <Button className="rounded-xl h-12 border p-4 bg-orange-400 text-white-pure flex flex-col justify-center text-center ">
-                      Langganan Sekarang
-                    </Button>
+                    <Link href="/login">
+                      <a>
+                        <Button className="rounded-xl h-12 border p-4 bg-orange-400 text-white-pure flex flex-col justify-center text-center ">
+                          Langganan Sekarang
+                        </Button>
+                      </a>
+                    </Link>
                   ) : (
                     <Link href="/account">
                       <a
