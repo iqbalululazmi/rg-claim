@@ -13,18 +13,26 @@ export const Header = () => {
   const mobileNavigations = HeaderConstant.mobileNavigations
   const router = useRouter()
   const [profile, setProfile] = useState<any>({})
+  const [menu, setMenu] = useState<any>([])
 
   useEffect(() => {
     const user = localStorage.getItem('user')
-    // setProfile(JSON.parse(res))
-    console.log(user)
     if (user === null) {
-      navigations = navigations.slice(0, 1)
+      navigations = navigations.filter((menu) => menu.auth === 'no-auth')
     } else {
       setProfile(JSON.parse(user))
+      if (profile.role === 'student') {
+        navigations = navigations.filter(
+          (menu) => menu.auth === profile.role || menu.auth === 'no-auth'
+        )
+      } else {
+        navigations = navigations.filter((menu) => menu.auth === profile.role)
+      }
     }
-    console.log(profile)
-  }, [])
+
+    setMenu(navigations)
+    console.log(menu)
+  }, [Object.keys(profile).length === 0])
 
   return (
     <div>
@@ -45,7 +53,7 @@ export const Header = () => {
                     </a>
                   </div>
                   <div className="hidden md:flex items-center justify-start md:flex-1 lg:w-0"></div>
-                  {navigations.map((item) => (
+                  {menu.map((item: any) => (
                     <Link key={item.name} href={item.href}>
                       <a
                         className={`${

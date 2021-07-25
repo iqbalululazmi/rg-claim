@@ -4,10 +4,17 @@ const navigations = [
   {
     name: 'Promo',
     href: '/promo',
+    auth: 'no-auth',
   },
   {
     name: 'Klaim Promo',
     href: '/klaim-promo',
+    auth: 'student',
+  },
+  {
+    name: 'Claim Manager',
+    href: '/admin/claim',
+    auth: 'admin',
   },
 ]
 

@@ -3,6 +3,8 @@ import { Layout } from '../components/Layout'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { UserApi } from 'src/shared/api/user.api'
+import { toast } from 'react-toastify'
+import { ClaimApi } from 'src/shared/api/claim.api'
 
 export default function KlaimPromo() {
   const router = useRouter()
@@ -63,16 +65,31 @@ export default function KlaimPromo() {
 
 const formSubmission = (packages: any[], user: any) => {
   const [packageInfo, setPackageInfo] = useState<any>([])
+  const [showSpinner, setShowSpinner] = useState<boolean>(false)
 
   const registerUser = async (e: any) => {
     e.preventDefault()
 
     const payload = {
       userId: user.userId,
-      city: e.target.postal_code.value,
+      userPhoneNumber: e.target.phone.value,
+      address: e.target.street_address.value,
+      city: e.target.city.value,
+      province: e.target.state.value,
+      postalCode: e.target.postal_code.value,
       packages: packageInfo,
     }
-    console.log(payload)
+
+    setShowSpinner(true)
+    const result: any = await ClaimApi.createClaim(payload)
+    if (result.status === 'error') {
+      toast.error(result.message, {
+        position: toast.POSITION.TOP_RIGHT,
+      })
+    }
+
+    console.log(showSpinner)
+    setShowSpinner(false)
   }
 
   return (
@@ -118,6 +135,7 @@ const formSubmission = (packages: any[], user: any) => {
                                   packageName: item.packageName,
                                   packageSerial: item.packageSerial,
                                   orderStatus: item.orderStatus,
+                                  prize: item.prize,
                                 },
                               ])
                             } else {
@@ -180,6 +198,11 @@ const formSubmission = (packages: any[], user: any) => {
               type="submit"
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white-pure bg-primary hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
             >
+              {showSpinner && (
+                <div className="flex flex-col justify-center items-center">
+                  <div className="loader ease-linear rounded-full border-2 border-t-2 border-white-pure h-4 w-4 mr-2"></div>
+                </div>
+              )}
               Klaim
             </button>
           </div>
